@@ -1,0 +1,360 @@
+#include <iostream>
+#include <string>
+#include <cctype>
+#include <algorithm>
+using namespace std;
+int numStudents = 0;
+
+struct student {
+    string firstName;
+    string lastName;
+    long int reg_No;
+    float marks[5];
+    string status="Registered";
+    float gpa;
+    float average;
+    string position;
+    char grade[5];
+};
+
+const int MAX_STUDENTS = 5; // Maximum number of students
+
+void userInputLoop(student students[], int& numStudents) {
+    string input;
+
+    while (true) {
+        cout << "Enter first name (or 'done' to exit): ";
+        cin >> input;
+        if (input == "done") {
+            break;
+        }
+        students[numStudents].firstName = input;
+
+        cout << "Enter last name: ";
+        cin >> students[numStudents].lastName;
+
+        cout << "Enter registration number: ";
+        cin >> students[numStudents].reg_No;
+
+        cout << endl; // Add a space for separation
+
+        cout << endl; // Add a space for separation
+
+        numStudents++; // Increment the count of students
+    }
+}
+
+void viewStudentsInfo(const student students[], int numStudents) {
+    cout << "All Students:" << endl;
+    cout<<endl;
+    for (int i = 0; i < numStudents; i++) {
+        cout << "First Name: " << students[i].firstName << endl;
+        cout << "Last Name: " << students[i].lastName << endl;
+        cout << "Registration Number: " << students[i].reg_No << endl;
+        cout << endl;
+    }
+}
+
+void viewStudent(const student& s) {
+    cout << "Student Information:" << endl;
+    cout << "First Name: " << s.firstName << endl;
+    cout << "Last Name: " << s.lastName << endl;
+    cout << "Registration Number: " << s.reg_No << endl;
+    cout<<"----------------------------------------------------"<<endl;
+    cout<<endl;
+    cout<< "Status: "<<s.status<<endl;
+    cout<< "GPA: "<<s.gpa<<endl;
+    cout<< "Position: "<<s.position<<endl;
+    cout<<"-----------------------------------------"<<endl;
+	cout<<endl;
+}
+
+
+
+void viewStudentMarks(const student s) {
+    cout << "Student Information:" << endl;
+    cout << "First Name: " << s.firstName << endl;
+    cout << "Last Name: " << s.lastName << endl;
+    cout << "Registration Number: " << s.reg_No << endl;
+    cout<<"----------------------------------------------------"<<endl;
+    cout<<endl;
+    cout<<"Subjects\tMarks\tGrade\n";
+    for (int i = 0; i < 5; ++i) {
+           cout << "Subject " << (i + 1) << "\t"<< s.marks[i] << "\t\t" << s.grade[i] << endl;
+        }
+        cout<<"-----------------------------------------"<<endl;
+	    cout<<endl;
+}
+
+
+
+
+bool findAndPrintStudent(const student students[], int numStudents, long int regNo) {
+    for (int i = 0; i < numStudents; i++) {
+        if (students[i].reg_No == regNo) {
+        	cout<<endl;
+            cout << "Student found!" << endl;
+            viewStudent(students[i]);
+            return true;
+        }
+    }
+    cout << "Student not found." << endl;
+    return false;
+}
+void studentAnalysis(student& s) {
+    string labels[] = {"Math", "Physics", "Chemistry", "English", "Biology"};
+    string failedSubjects[5]; // Array to store failed subjects
+    int numFailures = 0; // Counter for the number of failed subjects
+
+    for (int i = 0; i < 5; i++) {
+        if (s.marks[i] < 5) {
+            failedSubjects[numFailures] = labels[i]; // Store the failed subject
+            numFailures++; // Increment the counter
+        }
+    }
+
+    if (numFailures >= 3) {
+        s.status = "Retake";
+    } else if (numFailures == 0) {
+        s.status = "Passed all subjects";
+    } else {
+        s.status = "Failed in ";
+        for (int i = 0; i < numFailures; i++) {
+            s.status += failedSubjects[i]; // Append the failed subject
+            if (i < numFailures - 1) {
+                s.status += ", "; // Append a comma and space if it's not the last failed subject
+            }
+        }
+    }
+
+}
+
+void studentStatus(student& s) {
+    int gp[5];
+    for (int i = 0; i < 5; i++) {
+        if (s.marks[i] >= 80) {
+            gp[i] = 5;
+        } else if (s.marks[i] >= 60) {
+            gp[i] = 4;
+        } else if (s.marks[i] >= 50) {
+            gp[i] = 3;
+        } else if (s.marks[i] >= 30) {
+            gp[i] = 2;
+        } else {
+            gp[i] = 1;
+        }
+    }
+
+    int gpSum = 0;
+    for (int i = 0; i < 5; i++) {
+        gpSum += gp[i];
+    }
+
+    s.gpa = static_cast<float>(gpSum) / 5.0;
+}
+
+
+
+void updateStudentMarks(student students[], int numStudents, long int regNo) {
+    for (int i = 0; i < numStudents; i++) {
+        if (students[i].reg_No == regNo) {
+            cout << "Enter new marks:" << endl;
+            for (int j = 0; j < 5; j++) {
+                cout << "Enter " << "Subject " <<(j+1)<< ": ";
+                cin >> students[i].marks[j];
+            }
+
+            studentAnalysis(students[i]);
+            studentStatus(students [i]);
+            cout << "Marks updated successfully." << endl;
+            return; // Exit the function once marks are updated
+        }
+    }
+    cout << "Student not found." << endl;
+}
+void calculateAverage(student students[], int numStudents) {
+    for (int i = 0; i < numStudents; ++i) {
+        double totalMarks = 0;
+        for (int j = 0; j < 5; ++j) {
+            totalMarks += students[i].marks[j];
+        }
+        students[i].average = totalMarks / 5;
+    }
+}
+
+char calculateGrade(double marks) {
+    if (marks >= 80) return 'A';
+    if (marks >= 70) return 'B';
+    if (marks >= 60) return 'C';
+    if (marks >= 50) return 'D';
+    return 'F';
+}
+
+void calculateGradeForAllStudents(student students[]) {
+    for (int i = 0; i < numStudents; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            students[i].grade[j] = calculateGrade(students[i].marks[j]);
+        }
+    }
+}
+void updateStudentInfo(student students[], int numStudents, long int regNo) {
+    for (int i = 0; i < numStudents; i++) {
+        if (students[i].reg_No == regNo) {
+            cout << "Enter new details:" << endl;
+            cout<<"Enter First Name:";
+            cin>>students[i].firstName;
+
+            cout<<"Enter Last Name:";
+            cin>>students[i].lastName;
+
+            cout << "Details updated successfully." << endl;
+            return; // Exit the function once marks are updated
+        }
+    }
+    cout << "Student not found." << endl;
+}
+
+
+void studentPosition(student students[], int numStudents) {
+    float arr[numStudents]; // Array to store GPAs
+    for (int i = 0; i < numStudents; i++) {
+        arr[i] = students[i].gpa; // Store the GPA of each student in the array
+    }
+
+    sort(arr, arr + numStudents, greater<float>()); // Sort the array of GPAs
+
+    for (int i = 0; i < numStudents; i++) {
+        if (students[i].gpa == arr[0]) {
+            students[i].position = "First";
+        } else if (students[i].gpa == arr[1]) {
+            students[i].position = "Second";
+        } else if (students[i].gpa == arr[2]) {
+            students[i].position = "Third";
+        } else if (students[i].gpa == arr[3]) {
+            students[i].position = "Fourth";
+        } else {
+            students[i].position = "Fifth";
+        }
+    }
+}
+void viewStudentsResults(const student students[], int numStudents) {
+    cout << "All Students:" << endl;
+    cout<<endl;
+    for (int i = 0; i < numStudents; i++) {
+        cout << "First Name: " << students[i].firstName << endl;
+        cout << "Last Name: " << students[i].lastName << endl;
+        cout << "Registration Number: " << students[i].reg_No << endl;
+        cout << endl;
+        cout << "Status: " << students[i].status << endl;
+        cout << "GPA: "<<students[i].gpa<<endl;
+        cout << "Position: "<<students[i].position<<endl;
+        cout<<"----------------------------------------------------"<<endl;
+        cout<<endl;
+        cout<<"Marks"<<endl;
+    for(int j=0; j<5; j++){
+        cout<<"Subject "<<(j+1)<<": "<<students[i].marks[j]<<endl;
+}
+
+
+	cout<<"-----------------------------------------"<<endl;
+	cout<<endl;
+
+}
+
+}
+
+
+bool viewStudentResults(const student students[], int numStudents, long int regNo) {
+    for (int i = 0; i < numStudents; i++) {
+        if (students[i].reg_No == regNo) {
+        	cout<<endl;
+            cout << "Student found!" << endl;
+            viewStudentMarks(students[i]);
+            return true;
+        }
+    }
+    cout << "Student not found." << endl;
+    return false;
+}
+
+
+
+int main() {
+    student students[MAX_STUDENTS];
+    int numStudents = 0;
+    userInputLoop(students, numStudents);
+
+
+    int choice;
+    char choice1;
+    while (true) {
+        cout << "\nMenu: \n";
+        cout << "1. View students info\n";
+        cout << "2. View student info\n";
+        cout << "3. Update student info\n";
+        cout << "4. Add student results\n";
+        cout << "5. View students results\n";
+        cout << "6. View student results\n";
+        cout << "7. Update Student results\n";
+        cout << "0. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cout<<"------------------------------------"<<endl;
+
+        switch (choice) {
+            case 1:
+                viewStudentsInfo(students, numStudents);
+            case 2:
+                 long int viewRegNo;
+                cout << "Enter registration number to view student: ";
+                cin >> viewRegNo;
+                cout<<endl;
+                findAndPrintStudent(students, numStudents, viewRegNo);
+                break;
+
+            case 3:
+                cout << "Enter registration number to update student info: ";
+                cin >> viewRegNo;
+                cout<<endl;
+                updateStudentInfo(students, numStudents, viewRegNo);
+                break;
+
+        	case 4:
+                cout << "Enter registration number to add student results: ";
+                cin >> viewRegNo;
+                cout<<endl;
+                updateStudentMarks(students, numStudents, viewRegNo);
+                break;
+
+        	case 5:
+                viewStudentsResults(students, numStudents);
+                break;
+            case 6:
+                cout << "Enter registration number to view student results: ";
+                cin >> viewRegNo;
+                cout<<endl;
+                viewStudentResults(students, numStudents, viewRegNo);
+                break;
+            case 7:
+                cout << "Enter registration number to update student results: ";
+                cin >> viewRegNo;
+                cout<<endl;
+                updateStudentMarks(students, numStudents, viewRegNo);
+                break;
+
+            case 0:
+                cout << "Exiting program..." << endl;
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+                break;
+        }
+
+        studentPosition(students, numStudents);
+    }
+
+
+	cout<<"--------------------------------"<<endl;
+	cout<<endl;
+    return 0;
+}
